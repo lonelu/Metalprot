@@ -29,6 +29,9 @@ def load_old_vdm(path_to_database, cg, aa):
     Pelase check combs2_da.ipynb to learn the loaded database.
     '''
     cg_aa = cg + '/' + aa 
+    
+    print(path_to_database + cg_aa + '.parquet.gzip')
+
     df_vdm = pd.read_parquet(path_to_database + cg_aa + '.parquet.gzip')
 
     return df_vdm

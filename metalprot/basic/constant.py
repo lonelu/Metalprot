@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 import pickle
 import prody as pr
+import pandas as pd
 
 # hydrophobicity from https://www.cgl.ucsf.edu/chimera/docs/UsersGuide/midas/hydrophob.html
 
@@ -139,9 +140,12 @@ tetrahydra_geo_o = pr.parsePDB(os.path.join(Path(__file__).parent.parent, 'const
 ideal_ala = pr.parsePDB(os.path.join(Path(__file__).parent.parent, 'constants/ideal_ala.pdb'))
 
 try:
-    with open(Path(__file__).parent.parent / 'constants/ideal_alanine_bb_only.pkl', 'rb') as f:
-        ideal_alanine_bb_only = pickle.load(f)
+    ideal_path = Path(__file__).parent.parent / 'constants/ideal_alanine_bb_only.pkl'
+    ideal_alanine_bb_only = pd.read_pickle(str(ideal_path))
     ideal_ala_coords = np.array(ideal_alanine_bb_only[['c_x', 'c_y', 'c_z']])
+
 except:
-    ideal_alanine_bb_only = None
-    ideal_ala_coords = None
+    ideal_path = Path(__file__).parent.parent / 'constants/ideal_ala.pdb'
+    #print(ideal_path)
+    ideal_alanine_bb_only = pr.parsePDB(str(ideal_path)).select('name N CA C')
+    ideal_ala_coords = ideal_alanine_bb_only.getCoords()

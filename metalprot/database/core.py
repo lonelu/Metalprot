@@ -34,58 +34,6 @@ def extend_res_indices(inds_near_res, pdb_prody, extend = 4):
     return extend_inds
 
 
-def get_2ndshell_indices(inds, pdb_prody, ni_index, contact_aa_resinds =[], only_bb_2ndshell = False, _2nd_extend = 0):
-    '''
-    The method is to extract 2nd shell contact by applying heavy atom distance cut off 3.4.
-    '''
-    _2nd_resindices = []
-    for ind in inds:
-        if pdb_prody.select('resindex ' + str(ind)).getResnames()[0] == 'HIS':
-            dist1 = pr.calcDistance(pdb_prody.select('index ' + str(ni_index))[0], pdb_prody.select('resindex ' + str(ind) + ' name ND1')[0])
-            dist2 = pr.calcDistance(pdb_prody.select('index ' + str(ni_index))[0], pdb_prody.select('resindex ' + str(ind) + ' name NE2')[0])
-            if dist1 < dist2:
-                index = pdb_prody.select('resindex ' + str(ind) + ' name NE2')[0].getIndex()
-                resindex = pdb_prody.select('resindex ' + str(ind) + ' name NE2')[0].getResindex()
-            else:
-                index = pdb_prody.select('resindex ' + str(ind) + ' name ND1')[0].getIndex()
-                resindex = pdb_prody.select('resindex ' + str(ind) + ' name ND1')[0].getResindex()                         
-        elif pdb_prody.select('resindex ' + str(ind)).getResnames()[0] == 'ASP':
-            dist1 = pr.calcDistance(pdb_prody.select('index ' + str(ni_index))[0], pdb_prody.select('resindex ' + str(ind) + ' name OD1')[0])
-            dist2 = pr.calcDistance(pdb_prody.select('index ' + str(ni_index))[0], pdb_prody.select('resindex ' + str(ind) + ' name OD2')[0])
-            if dist1 < dist2:
-                index = pdb_prody.select('resindex ' + str(ind) + ' name OD2')[0].getIndex()
-                resindex = pdb_prody.select('resindex ' + str(ind) + ' name OD2')[0].getResindex()
-            else:
-                index = pdb_prody.select('resindex ' + str(ind) + ' name OD1')[0].getIndex()
-                resindex = pdb_prody.select('resindex ' + str(ind) + ' name OD1')[0].getResindex()               
-        elif pdb_prody.select('resindex ' + str(ind)).getResnames()[0] == 'GLU':
-            dist1 = pr.calcDistance(pdb_prody.select('index ' + str(ni_index))[0], pdb_prody.select('resindex ' + str(ind) + ' name OE1')[0])
-            dist2 = pr.calcDistance(pdb_prody.select('index ' + str(ni_index))[0], pdb_prody.select('resindex ' + str(ind) + ' name OE2')[0])
-            if dist1 < dist2:
-                index = pdb_prody.select('resindex ' + str(ind) + ' name OE2')[0].getIndex()
-                resindex = pdb_prody.select('resindex ' + str(ind) + ' name OE2')[0].getResindex()
-            else:
-                index = pdb_prody.select('resindex ' + str(ind) + ' name OE1')[0].getIndex()
-                resindex = pdb_prody.select('resindex ' + str(ind) + ' name OE1')[0].getResindex()
-        else:
-            continue     
-        if only_bb_2ndshell:
-            all_near = pdb_prody.select('protein and heavy and backbone and within 3.4 of index ' + str(index) + ' and not resindex ' + str(resindex))
-        else:
-            all_near = pdb_prody.select('protein and heavy and within 3.4 of index ' + str(index) + ' and not resindex ' + str(resindex))
-
-        if not all_near or not all_near.select('nitrogen or oxygen or sulfur'):
-            continue
-        inds_2nshell = all_near.select('nitrogen or oxygen or sulfur').getResindices()
-        inds_2nshell = [x for x in inds_2nshell if x not in contact_aa_resinds] #Remove from contact_aa_resinds
-        if _2nd_extend > 0:
-            #Here we extend the inds_2nshell, so later we can extract more bb infomation.
-            inds_2nshell = extend_res_indices(inds_2nshell, pdb_prody, _2nd_extend)
-
-        _2nd_resindices.extend(np.unique(inds_2nshell)) 
-
-    return _2nd_resindices
-
 
 def get_contact(pdbs):
     metal_coords = []
@@ -135,6 +83,60 @@ class Core:
         # Inside the atomGroupDict. We will generate different type of pdb for clustering into vdM.
         self.atomGroupDict = dict()
 
+    # EDITED BY 5.8
+    def get_2ndshell_indices(inds, pdb_prody, ni_index, contact_aa_resinds =[], only_bb_2ndshell = False, _2nd_extend = 0):
+        '''
+        The method is to extract 2nd shell contact by applying heavy atom distance cut off 3.4.
+        '''
+        _2nd_resindices = []
+        for ind in inds:
+            if pdb_prody.select('resindex ' + str(ind)).getResnames()[0] == 'HIS':
+                dist1 = pr.calcDistance(pdb_prody.select('index ' + str(ni_index))[0], pdb_prody.select('resindex ' + str(ind) + ' name ND1')[0])
+                dist2 = pr.calcDistance(pdb_prody.select('index ' + str(ni_index))[0], pdb_prody.select('resindex ' + str(ind) + ' name NE2')[0])
+                if dist1 < dist2:
+                    index = pdb_prody.select('resindex ' + str(ind) + ' name NE2')[0].getIndex()
+                    resindex = pdb_prody.select('resindex ' + str(ind) + ' name NE2')[0].getResindex()
+                else:
+                    index = pdb_prody.select('resindex ' + str(ind) + ' name ND1')[0].getIndex()
+                    resindex = pdb_prody.select('resindex ' + str(ind) + ' name ND1')[0].getResindex()                         
+            elif pdb_prody.select('resindex ' + str(ind)).getResnames()[0] == 'ASP':
+                dist1 = pr.calcDistance(pdb_prody.select('index ' + str(ni_index))[0], pdb_prody.select('resindex ' + str(ind) + ' name OD1')[0])
+                dist2 = pr.calcDistance(pdb_prody.select('index ' + str(ni_index))[0], pdb_prody.select('resindex ' + str(ind) + ' name OD2')[0])
+                if dist1 < dist2:
+                    index = pdb_prody.select('resindex ' + str(ind) + ' name OD2')[0].getIndex()
+                    resindex = pdb_prody.select('resindex ' + str(ind) + ' name OD2')[0].getResindex()
+                else:
+                    index = pdb_prody.select('resindex ' + str(ind) + ' name OD1')[0].getIndex()
+                    resindex = pdb_prody.select('resindex ' + str(ind) + ' name OD1')[0].getResindex()               
+            elif pdb_prody.select('resindex ' + str(ind)).getResnames()[0] == 'GLU':
+                dist1 = pr.calcDistance(pdb_prody.select('index ' + str(ni_index))[0], pdb_prody.select('resindex ' + str(ind) + ' name OE1')[0])
+                dist2 = pr.calcDistance(pdb_prody.select('index ' + str(ni_index))[0], pdb_prody.select('resindex ' + str(ind) + ' name OE2')[0])
+                if dist1 < dist2:
+                    index = pdb_prody.select('resindex ' + str(ind) + ' name OE2')[0].getIndex()
+                    resindex = pdb_prody.select('resindex ' + str(ind) + ' name OE2')[0].getResindex()
+                else:
+                    index = pdb_prody.select('resindex ' + str(ind) + ' name OE1')[0].getIndex()
+                    resindex = pdb_prody.select('resindex ' + str(ind) + ' name OE1')[0].getResindex()
+            else:
+                continue     
+            if only_bb_2ndshell:
+                all_near = pdb_prody.select('protein and heavy and backbone and within 3.4 of index ' + str(index) + ' and not resindex ' + str(resindex))
+            else:
+                all_near = pdb_prody.select('protein and heavy and within 3.4 of index ' + str(index) + ' and not resindex ' + str(resindex))
+
+            if not all_near or not all_near.select('nitrogen or oxygen or sulfur'):
+                continue
+            inds_2nshell = all_near.select('nitrogen or oxygen or sulfur').getResindices()
+            inds_2nshell = [x for x in inds_2nshell if x not in contact_aa_resinds] #Remove from contact_aa_resinds
+            if _2nd_extend > 0:
+                #Here we extend the inds_2nshell, so later we can extract more bb infomation.
+                inds_2nshell = extend_res_indices(inds_2nshell, pdb_prody, _2nd_extend)
+
+            _2nd_resindices.extend(np.unique(inds_2nshell)) 
+
+        return _2nd_resindices
+
+    
     def add2atomGroupDict(self, key, sel_pdb_prody):
         if not key in self.atomGroupDict.keys():
             self.atomGroupDict[key] = []
@@ -307,8 +309,8 @@ class Core:
         for resind in self.contact_aa_resinds:
             if filter_AA and not self.full_pdb.select('resname ' + AA + ' and resindex ' + str(resind)):
                 continue      
-            #inds = get_inds_from_resind(pdb_prody, resind, aa)
-            _2nshell_resinds = get_2ndshell_indices([resind],  self.full_pdb, self.metal.getIndex(), self.contact_aa_resinds, only_bb_2ndshell = only_bb_2ndshell)
+            #inds = get_inds_from_resind(pdb_prody, resind, aa) edited by 5.8
+            _2nshell_resinds = Core.get_2ndshell_indices([resind],  self.full_pdb, self.metal.getIndex(), self.contact_aa_resinds, only_bb_2ndshell = only_bb_2ndshell)
             if len(_2nshell_resinds) > 0:
                 for _2resind in _2nshell_resinds:      
                     #print(self.full_pdb.getTitle() + '+' + '-'.join([str(x) for x in _2nshell_resinds]))

@@ -1,5 +1,0 @@
-REMARK AtomGroup 3max_ZN_1_AtomContact4_mem0
-ATOM      1  N   N   D   0      24.160  34.292  91.962  1.00 26.88           N
-ATOM      2  N   N   D   1      27.186  35.674  92.132  1.00 26.23           N
-ATOM      3  N   N   D   2      24.524  37.070  93.521  1.00 27.04           N
-HETATM    4  ZN  ZN  D   3      25.363  35.213  93.260  1.00 25.06          ZN

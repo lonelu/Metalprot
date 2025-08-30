@@ -21,7 +21,7 @@ from multiprocessing.dummy import Pool as ThreadPool
 from .search import Search_vdM, supperimpose_target_bb, calc_pairwise_neighbor
 from .graph import Graph
 from .comb_info import CombInfo
-from .find_path_by_matrix import neighbor_generate_nngraph, calc_adj_matrix_paths
+from .find_path_by_matrix_fixed import neighbor_generate_nngraph, calc_adj_matrix_paths
 from ..basic.filter import Search_filter
 from . import search_2ndshell
 

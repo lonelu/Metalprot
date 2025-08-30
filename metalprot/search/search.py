@@ -244,6 +244,7 @@ class Search_vdM:
         '''
         print('neighbor_generate_query_dict')
         wins = []
+        print(self.win_filtered)
         if len(self.win_filtered) > 0:
             wins.extend([w for w in self.win_filtered])
         else:
